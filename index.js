@@ -422,6 +422,68 @@ app.delete('/instrumentos/:id', (req, res) => {
   res.status(204).send();
 });
 
+/*livros-api.js*/
+app.use(express.json());
+
+// Banco de dados em memória
+let livros = [];
+let idLivros = 1;
+
+// GET /livros - Listar todos
+app.get('/livros', (req, res) => {
+  res.json(livros);
+});
+
+// GET /livros/:id - Buscar por ID
+app.get('/livros/:id', (req, res) => {
+  const livros = livros.find(i => i.id === parseInt(req.params.id));
+  if (!livros) return res.status(404).json({ mensagem: 'livros não encontrado' });
+  res.json(livros);
+});
+
+// POST /livros - Criar novo
+app.post('/livros', (req, res) => {
+  const {  nome, autor, assunto, resumo, dataLancamento, precoSugerido } = req.body;
+
+  const novoLivros = {
+    id: idLivros++,
+   nome,
+    autor,
+    assunto,
+    resumo,
+    dataLancamento,
+    precoSugerido
+  };
+
+  livros.push(novoLivros);
+  res.status(201).json(novoLivros);
+});
+
+// PUT /livros/:id - Atualizar
+app.put('/livros/:id', (req, res) => {
+  const { nome, autor, assunto, resumo, dataLancamento, precoSugerido } = req.body;
+  const livro = livros.find(i => i.id === parseInt(req.params.id));
+  if (!livro) return res.status(404).json({ mensagem: 'livro não encontrado' });
+
+  livro.nome = nome;
+  livro.autor = autor;
+  livro.assunto = assunto;
+  livro.resumo = resumo;
+  livro.dataLancamento = dataLancamento;
+  livro.precoSugerido = precoSugerido;
+
+
+  res.json(livro);
+});
+
+// DELETE /livros/:id - Remover
+app.delete('/livros/:id', (req, res) => {
+  const index = livros.findIndex(i => i.id === parseInt(req.params.id));
+  if (index === -1) return res.status(404).json({ mensagem: ' não encontrado' });
+
+  livros.splice(index, 1);
+  res.status(204).send();
+});
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
